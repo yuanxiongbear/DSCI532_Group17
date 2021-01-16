@@ -1,0 +1,33 @@
+## Motivation and purpose
+Our role：Football App Development Department
+
+Target audience: Football fans and football lottery buyers
+
+Football, or soccer, is one of the world’s most popular sports. Even today, the number of football fans is still rapidly increasing. Before the pandemic, the FIFA World Cup is held every four years and billions of people watch World Cup games during the same period of time. According to reports, there are about 3.5 billion football fans[@topendsports] worldwide and the number is still increasing. Every fan has his/her own favourite football stars and teams so they are always willing to watch their games and follow their clubs. This has laid a great foundation to the sport betting industry. To help football fans and football betting buyers, we propose to develop a football star app to give them the latest news and information about star rankings. Our app will display various data visualization of the ranking lists for football players, grouped by clubs and countries. In addition, our app will show values, wages, abilities, potentials and other essential attributes for football players. Users will be able to explore different aspects of football such as football players geographical distribution by filtering by continent and users are also able to customize the ranks.
+
+
+## Description of the data
+Our data set is collected from Kaggle called "FIFA 19 complete player dataset" which can be found [here](https://www.kaggle.com/karangadiya/fifa19). The data is scraped from [Sofifa](https://sofifa.com/) and it gives information about 18205 football players from different aspects. We will visualize the top players with their essential attributes, which include their personal information, (`Name`, `Age`, `Nationality`, `Height`, `Weight`, `Body Type`), affiliation  (`Club`, `Loaned From`, `Joined`, `Contract Valid Until`), as well as other important factors such as (`Wage`, `Preferred Foot`, `Injuries`) and so on. In addition, we will also provide advanced statistics about the players’ abilities, such as (`Crossing`, `Finishing`, `Positioning`) and so on. Users can rank by a combination of these attributes and generate customized ratings (‘Overall’, ‘Potential’) which we will summarize and display.
+
+## Research questions and usage scenarios
+Timmy is a starting player of the University’s football team. Besides playing league games everyday, Timmy is also a huge fan of sports bets, specifically in football player bets. In fact, Timmy takes sports bets very seriously and considers it his side stream of income. He wants to [explore] a dataset of football players in order to [compare] the different variables that affect a players performance. As Timmy logs onto our football dashboard, he can navigate to the `Players` tab and see a list of attributes associated with each player. He wants to [identify] the most relevant attribute that influences a player’s performance. He picks out a number of big-name players and collects their statistics of physical measures, salary, and so on. He then conducts his own statistical analysis on how these variables affect the players’ performances, and hypothesizes that salary and recent game streaks are strong indicators of a player’s performance this season. After thorough research, Timmy will design a new betting strategy based on this analysis and hopefully he makes profit out of it.
+
+## App description and Sketch
+An overview of the dashboard:
+
+![](sketch.img)
+
+The app contains a landing page that shows top ten players, top ten soccer clubs and top ten countries based on the information that the users want to know.
+In the main dropdown list, users can choose to rank by player value, player wage, player ability and other options. 
+Users can further filter their search by fixing countries, clubs, positions, and so on, or adjust the rank order ascending or descending. 
+For example, by choosing 'value', and filter continent as 'europe', a user can learn the top ten most expensive players in Europe, top ten European clubs with the highest total player values, top ten Europe countries with the highest total player values. 
+
+
+
+
+
+References:
+topendsports: https://www.topendsports.com/world/lists/popular-sport/fans.html
+
+
+
