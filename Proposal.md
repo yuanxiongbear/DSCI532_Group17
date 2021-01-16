@@ -15,7 +15,7 @@ Timmy is a starting player of the University’s football team. Besides playing 
 ## App description and Sketch
 An overview of the dashboard:
 
-![](sketch.img)
+![](img/dashboard_design.png)
 
 The app contains a landing page that shows top ten players, top ten soccer clubs and top ten countries based on the information that the users want to know.
 In the main dropdown list, users can choose to rank by player value, player wage, player ability and other options. 
@@ -24,10 +24,10 @@ For example, by choosing 'value', and filter continent as 'europe', a user can l
 
 
 
+## References:
+Gadiya K. (2018, Dec). FIFA 19 complete player dataset. Retrieved December, 11th, 2018 from https://www.kaggle.com/karangadiya/fifa19.
+Wood, R. Top 10 List of the World's Most Popular Sports. Topend Sports, science, training and nutrition. https://www.topendsports.com/world/lists/popular-sport/fans.htm.
 
-
-References:
-topendsports: https://www.topendsports.com/world/lists/popular-sport/fans.html
 
 
 
