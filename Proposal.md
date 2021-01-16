@@ -25,7 +25,9 @@ For example, by choosing 'value', and filter continent as 'europe', a user can l
 
 
 ## References:
-Robert Wood, "World's Most Popular Sports by Fans." Topend Sports Website, 2008, https://www.topendsports.com/world/lists/popular-sport/fans.htm, Accessed 16/01/2021
+Gadiya K. (2018, Dec). FIFA 19 complete player dataset. Retrieved December, 11th, 2018 from https://www.kaggle.com/karangadiya/fifa19.
+Wood, R. Top 10 List of the World's Most Popular Sports. Topend Sports, science, training and nutrition. https://www.topendsports.com/world/lists/popular-sport/fans.htm.
+
 
 
 
