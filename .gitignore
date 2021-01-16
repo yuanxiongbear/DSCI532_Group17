@@ -1,0 +1,15 @@
+# Jupyternotebook files #
+######################
+.ipynb_checkpoints
+
+# R cache #
+######################
+.RHistory
+
+# Python cache #
+######################
+__pycache__/
+
+# OS generated files #
+######################
+.DS_Store
