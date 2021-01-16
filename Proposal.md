@@ -24,10 +24,8 @@ For example, by choosing 'value', and filter continent as 'europe', a user can l
 
 
 
-
-
-References:
-topendsports: https://www.topendsports.com/world/lists/popular-sport/fans.html
+## References:
+Robert Wood, "World's Most Popular Sports by Fans." Topend Sports Website, 2008, https://www.topendsports.com/world/lists/popular-sport/fans.htm, Accessed 16/01/2021
 
 
 
