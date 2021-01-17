@@ -2,17 +2,14 @@
 
 ### Group repository for DSCI 532, Group 17
 ### Authors: Yuanzhe Marco Ma, Sicheng Sun, Guanshu Tao, Yuan Xiong
-### Jan.11 - Feb.13 2021
 
-## Introduction
+## App Description
 
-A dashboard for football star rankings. For a more detailed description, please see our [proposal](https://github.com/mmyz88/DSCI532_Group17/blob/main/Proposal.md)
+A dashboard for football star rankings. For more detailed usage examples, please see our [proposal](https://github.com/mmyz88/DSCI532_Group17/blob/main/Proposal.md)
 
-## App description and Sketch
-
-An overview of the dashboard:
 
 ![](img/dashboard_design.png)
+
 
 The app contains a landing page that shows top ten players, top ten soccer clubs and top ten countries based on the information that the users want to know.
 In the main dropdown list, users can choose to rank by player value, player wage, player ability and other options. 
