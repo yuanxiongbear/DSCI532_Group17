@@ -19,20 +19,29 @@ app.layout = dbc.Container([
     html.Br(),
     dbc.Row([
         dbc.Col([
+            html.Div(['Rank By:']),
             dcc.Dropdown(
                 id='sortby-widget',
                 value='Overall',
                 options=[{'label': col, 'value': col} for col in data.columns]
             ), 
             html.Br(),
+            html.Div(['Order:']),
             dcc.Dropdown(
                 id='order-widget',
-                value='True',
+                value='False',
                 options=[{'label': 'Descending', 'value': 'False'},
                          {'label': 'Ascending', 'value': 'True'}]
             )
         ], md=3),
         dbc.Col([
+            html.H4(['Select Attributes:']),
+            dcc.Dropdown(
+                id='attribute-widget',
+                value=['Name', 'Nationality', 'Age', 'Value', 'Overall'],
+                options=[{'label': col, 'value': col} for col in data.columns],
+                multi=True
+            ),
             html.Iframe(
                 id='table',
                 srcDoc=table.to_html(index=False),
@@ -49,9 +58,10 @@ app.layout = dbc.Container([
 @app.callback(
     Output('table', 'srcDoc'),
     Input('sortby-widget', 'value'),
-    Input('order-widget', 'value'))
-def update_table(by, order):
-    table = DataManager().update_table(data, by, order=='True')
+    Input('order-widget', 'value'),
+    Input('attribute-widget', 'value'))
+def update_table(by, order, cols):
+    table = DataManager().update_table(data, by, order=='True', cols)
     return table.to_html(index=False)
 
 
