@@ -92,5 +92,17 @@ def update_table(by, order, cols, filter_natn, filter_club):
     return table.to_html(index=False)
 
 
+
+def plot_altair(by = 'Overall', ascending = False , show_n = 10):
+
+    df_nation = df.groupby('Nationality').agg({by:'mean'}).reset_index()
+    df_nation= df_nation.sort_values(by,ascending= ascending)[:show_n]
+    nation_chart = alt.Chart(df_nation).mark_bar().encode(alt.X('Nationality', sort='-y'), alt.Y(by))
+
+    df_nation = df.groupby('Club').agg({by:'mean'}).reset_index()
+    df_nation= df_nation.sort_values(by,ascending= ascending)[:show_n]
+    club_chart = alt.Chart(df_nation).mark_bar().encode(alt.X('Club', sort='-y'), alt.Y(by))
+    return club_chart&nation_chart
+
 if __name__ == '__main__':
     app.run_server(debug=True)
