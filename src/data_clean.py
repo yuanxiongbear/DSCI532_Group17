@@ -11,7 +11,7 @@ def raw_import():
     return df
 
 def column_filter(df):
-    df_filtered = df[['Name', 'Age', 'Nationality', 'Overall', 'Potential', 'Club', 'Value', 'Wage']]
+    df_filtered = df[['Name', 'Age', 'Nationality', 'Overall', 'Potential', 'Club', 'Value', 'Wage', 'Height', 'Weight']]
     return df_filtered
 
 def num_transform(df):
@@ -25,6 +25,10 @@ def num_transform(df):
                df.Wage.str.extract(r'[\d\.]+([KM]+)', expand=False)
                   .fillna(1)
                   .replace(['K','M'], [10**3, 10**6]).astype(int))
+    df['Weight'] = df['Weight'].str.replace('lbs','')
+    df["Weight"] = pd.to_numeric(df["Weight"], downcast="float")
+    df = df.rename(columns={'Weight': 'Weight(lbs)', 'Value': 'Value(€)', 'Wage': 'Wage(€)'})
+    
     return df
 
 if __name__ == "__main__":
