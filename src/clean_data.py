@@ -40,5 +40,4 @@ def clean(df):
 if __name__ == '__main__':
     df = get_raw()
     df = clean(df)
-    print(df['Weight'][:10])
     df.to_csv('../data/processed/data.csv')

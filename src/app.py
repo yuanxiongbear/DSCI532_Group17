@@ -8,9 +8,26 @@ import dash_bootstrap_components as dbc
 
 # retrieve data
 data = DataManager().get_data()
-
-
 table = DataManager().make_table(data)
+
+### charts ###
+def make_chart(df, group_col):
+    df = (data.groupby(group_col).sum()['Value']
+         ).sort_values(ascending=False)[:10].reset_index()
+
+    chart = alt.Chart(df).mark_bar().encode(
+            x = alt.X(group_col, sort='-y'),
+            y = alt.Y('Value', title='Player Value')
+    ).properties(
+        width=200,
+        height=150
+    )
+    return chart
+    
+chart_top = make_chart(data, 'Nationality')
+chart_bot = make_chart(data, 'Club')
+
+
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 # app layout
@@ -49,8 +66,16 @@ app.layout = dbc.Container([
             ),
         ]),
         dbc.Col([
-            html.Div(['Right section'],
-            style={"border":"2px black solid"})
+            html.Iframe(
+                id='bycountry-chart',
+                srcDoc=chart_top.to_html(),
+                style={'border-width': '0', 'width': '150%', 'height': '300px'}
+            ),
+            html.Iframe(
+                id='byclub-chart',
+                srcDoc=chart_bot.to_html(),
+                style={'border-width': '0', 'width': '150%', 'height': '300px'}
+            ),
         ], md=3)
     ])
 ])
@@ -63,6 +88,10 @@ app.layout = dbc.Container([
 def update_table(by, order, cols):
     table = DataManager().update_table(data, by, order=='True', cols)
     return table.to_html(index=False)
+
+
+
+
 
 
 if __name__ == '__main__':
