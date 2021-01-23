@@ -5,6 +5,7 @@
 
 import pandas as pd
 import numpy as np
+import pycountry_convert as pc
 
 def raw_import():
     df = pd.read_csv ('../data/raw/data.csv')
@@ -28,13 +29,28 @@ def num_transform(df):
     df['Weight'] = df['Weight'].str.replace('lbs','')
     df["Weight"] = pd.to_numeric(df["Weight"], downcast="float")
     df = df.rename(columns={'Weight': 'Weight(lbs)', 'Value': 'Value(€)', 'Wage': 'Wage(€)'})
-    
     return df
 
+def add_continent(df):
+    s1 = list()
+    df = df.replace(['England', 'Wales', 'Scotland', 'Northern Ireland', ], ['United Kingdom','United Kingdom','United Kingdom',  'United Kingdom', ])
+    df = df.replace(['Korea Republic', 'Central African Rep.','Kosovo'],['Korea, Republic of', 'Central African Republic','Serbia'])
+    df = df.replace(['DR Congo', 'Republic of Ireland', 'FYR Macedonia', 'China PR', 'Guinea Bissau'],['Congo, The Democratic Republic of the', 'Ireland', 'North Macedonia', 'China', 'Guinea-Bissau'])
+    df = df.replace(['São Tomé & Príncipe', 'Korea DPR', 'St Kitts Nevis'], ['Sao Tome and Principe', "Korea, Democratic People's Republic of", 'Saint Kitts and Nevis'])
+    df = df.replace(['Antigua & Barbuda', 'Curacao','Trinidad & Tobago','Bosnia Herzegovina','St Lucia'],['Netherlands','Antigua and Barbuda','Trinidad and Tobago', 'Bosnia and Herzegovina','Saint Lucia'])
+    for i in df['Nationality']:
+        country_code = pc.country_name_to_country_alpha2(i, cn_name_format="default")
+        continent_name = pc.country_alpha2_to_continent_code(country_code)
+        s1.append(continent_name)
+    df['Continent'] = s1
+    df = df.replace(['SA', 'EU', 'AF', 'NA', 'AS', 'OC'], ['South America', 'Europe', 'Africa', 'North America', 'Asia', 'Oceania'])
+    return df
+   
 if __name__ == "__main__":
     df = raw_import()
     df = column_filter(df)
     df = num_transform(df)
+    df = add_continent(df)
     df.to_csv('../data/processed/processed_data.csv')
     
 
