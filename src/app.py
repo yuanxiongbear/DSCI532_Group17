@@ -3,36 +3,20 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
 from data_manager import DataManager
-import altair as alt
 import dash_bootstrap_components as dbc
 
 # retrieve data
 data = DataManager().get_data()
+
+# land-on page graphics
 table = DataManager().make_table(data)
-
-### charts ###
-def make_chart(df, group_col):
-    df = (data.groupby(group_col).sum()['Value']
-         ).sort_values(ascending=False)[:10].reset_index()
-
-    chart = alt.Chart(df).mark_bar().encode(
-            x = alt.X(group_col, sort='-y'),
-            y = alt.Y('Value', title='Player Value')
-    ).properties(
-        width=200,
-        height=150
-    )
-    return chart
-    
-chart_top = make_chart(data, 'Nationality')
-chart_bot = make_chart(data, 'Club')
-
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+chart_top = DataManager().make_chart(data, 'Nationality')
+chart_bot = DataManager().make_chart(data, 'Club')
 
 # app layout
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = dbc.Container([
-    html.H1('FIFA Star Board'), 
+    html.H1('FIFA Star Board'),
     html.Br(),
     dbc.Row([
         dbc.Col([
@@ -46,9 +30,23 @@ app.layout = dbc.Container([
             html.Div(['Order:']),
             dcc.Dropdown(
                 id='order-widget',
-                value='False',
+                value='True',
                 options=[{'label': 'Descending', 'value': 'False'},
                          {'label': 'Ascending', 'value': 'True'}]
+            ),
+            html.Br(),
+            html.Div(['Nationality:']),
+            dcc.Dropdown(
+                id='filter-natn-widget',
+                value='',
+                options=[{'label': val, 'value': val} for val in data['Nationality'].unique()]
+            ),
+            html.Br(),
+            html.Div(['Club:']),
+            dcc.Dropdown(
+                id='filter-club-widget',
+                value='',
+                options=[{'label': val, 'value': val} for val in data['Club'].dropna().unique()]
             )
         ], md=3),
         dbc.Col([
@@ -80,18 +78,18 @@ app.layout = dbc.Container([
     ])
 ])
 
+
 @app.callback(
     Output('table', 'srcDoc'),
     Input('sortby-widget', 'value'),
     Input('order-widget', 'value'),
-    Input('attribute-widget', 'value'))
-def update_table(by, order, cols):
-    table = DataManager().update_table(data, by, order=='True', cols)
+    Input('attribute-widget', 'value'),
+    Input('filter-natn-widget', 'value'),
+    Input('filter-club-widget', 'value'))
+def update_table(by, order, cols, filter_natn, filter_club):
+    table = DataManager().update_table(data, by, order == 'True',
+                                       cols, filter_natn, filter_club)
     return table.to_html(index=False)
-
-
-
-
 
 
 if __name__ == '__main__':
