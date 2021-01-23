@@ -49,7 +49,7 @@ app.layout = dbc.Container([
             dcc.Dropdown(
                 id='filter-conti-widget',
                 value='',
-                options=[{'label': val, 'value': val} for val in data['Continent'].unique()
+                options=[{'label': val, 'value': val} for val in data['Continent'].dropna().unique()
             
         ], md=3),
         dbc.Col([
