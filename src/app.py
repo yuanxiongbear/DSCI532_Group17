@@ -17,6 +17,7 @@ charts = DataManager().plot_altair(data)
 
 # app layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 app.layout = dbc.Container([
     html.Br(),
     dbc.Row([
@@ -58,7 +59,7 @@ app.layout = dbc.Container([
             dcc.Dropdown(
                 id='filter-conti-widget',
                 value='',
-                options=[{'label': val, 'value': val} for val in data['Continent'].dropna().unique()
+                options=[{'label': val, 'value': val} for val in data['Continent'].dropna().unique()])
             
 
         ], md=3),
