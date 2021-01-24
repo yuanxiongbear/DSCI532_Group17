@@ -1,14 +1,15 @@
 # author: Yuan Xiong
 # date: 2020-01-22
 
-# The purpose of this script is to do the data wrangling on the raw data and turn it into processed data based on the study purpose of our project.
+# The purpose of this script is to do the data wrangling on
+# the raw data and turn it into processed data based on the study purpose of our project.
 
 import pandas as pd
 import numpy as np
 import pycountry_convert as pc
 
 def raw_import():
-    df = pd.read_csv ('../data/raw/data.csv')
+    df = pd.read_csv('../data/raw/data.csv', index_col=0)
     return df
 
 def column_filter(df):

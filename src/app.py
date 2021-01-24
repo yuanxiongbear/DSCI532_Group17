@@ -1,27 +1,36 @@
+# authors: Yuanzhe Marco Ma, Sicheng Sun, Guanshu Tao, Yuan Xiong
+# date: 2021-01-23
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
+from dash.dependencies import Input, Output
 from data_manager import DataManager
+import dash_bootstrap_components as dbc
+import numpy as np
 
 # retrieve data
 data = DataManager().get_data()
-table = data[['Ranking', 'Name', 'Nationality', 'Age', 'Value', 'Overall']]
-table = table.sort_values('Overall', ascending=False)[:10]
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+# land-on page graphics
+table = DataManager().make_table(data)
+charts = DataManager().plot_altair(data)
 
 # app layout
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = dbc.Container([
-    html.H1('FIFA Star Board'),
     html.Br(),
     dbc.Row([
         dbc.Col([
+            html.Div(
+                id='placebolder-left',
+                style={'height': '20vh'}
+            ),
             html.Div(['Rank By:']),
             dcc.Dropdown(
-                id='sortby-widget',
+                id='rankby-widget',
                 value='Overall',
                 options=[{'label': col, 'value': col} for col in data.columns]
-            ), 
+            ),
             html.Br(),
             html.Div(['Order:']),
             dcc.Dropdown(
@@ -31,11 +40,11 @@ app.layout = dbc.Container([
                          {'label': 'Ascending', 'value': 'True'}]
             ),
             html.Br(),
-            html.Div(['Nationality:']),
+            html.Div(['Continent:']),
             dcc.Dropdown(
-                id='filter-natn-widget',
+                id='filter-cont-widget',
                 value='',
-                options=[{'label': val, 'value': val} for val in data['Nationality'].unique()]
+                options=[{'label': val, 'value': val} for val in data['Continent'].unique()]
             ),
             html.Br(),
             html.Div(['Club:']),
@@ -43,69 +52,65 @@ app.layout = dbc.Container([
                 id='filter-club-widget',
                 value='',
                 options=[{'label': val, 'value': val} for val in data['Club'].dropna().unique()]
-            ),
-            html.Br(),
-            html.Div(['Continent:']),
-            dcc.Dropdown(
-                id='filter-conti-widget',
-                value='',
-                options=[{'label': val, 'value': val} for val in data['Continent'].unique()
-            
+            )
         ], md=3),
         dbc.Col([
+            html.H1('FIFA STAR BOARD', style={'width': '50vh', 'height': '10vh'}),
             html.H4(['Select Attributes:']),
             dcc.Dropdown(
                 id='attribute-widget',
-                value=['Name', 'Nationality', 'Age', 'Value', 'Overall'],
+                value=['Name', 'Nationality', 'Age', 'Value(€)', 'Overall'],
                 options=[{'label': col, 'value': col} for col in data.columns],
                 multi=True
             ),
             html.Iframe(
                 id='table',
                 srcDoc=table.to_html(index=False),
-                style={'border-width': '0', 'width': '100%', 'height': '400px'}
+                style={'border-width': '0', 'width': '100%', 'height': '500px'}
             ),
         ]),
         dbc.Col([
-            html.Iframe(
-                id='bycountry-chart',
-                srcDoc=chart_top.to_html(),
-                style={'border-width': '0', 'width': '150%', 'height': '300px'}
+            html.Div(
+                id='placebolder-right',
+                style={'height': '10vh'}
             ),
+            html.Div(['Top 10 by Club and by Nationality']),
             html.Iframe(
-                id='byclub-chart',
-                srcDoc=chart_bot.to_html(),
-                style={'border-width': '0', 'width': '150%', 'height': '300px'}
+                id='charts',
+                srcDoc=charts.to_html(),
+                style={'border-width': '0', 'width': '150%', 'height': '700px'}
             ),
         ], md=3)
     ])
 ])
 
-
+# updates table from all 5 dropdowns
 @app.callback(
     Output('table', 'srcDoc'),
-    Input('sortby-widget', 'value'),
+    Input('rankby-widget', 'value'),
     Input('order-widget', 'value'),
     Input('attribute-widget', 'value'),
-    Input('filter-natn-widget', 'value'),
-    Input('filter-club-widget', 'value'),
-    Input('filter-conti-widget', 'value'))
-def update_table(v1, v2, v3, v4, v5):
-    return None
+    Input('filter-cont-widget', 'value'),
+    Input('filter-club-widget', 'value'))
+def update_table(by, order, cols, filter_cont, filter_club):
+    table = DataManager().update_table(data, by, order == 'True',
+                                       cols, filter_cont, filter_club)
+    return table.to_html(index=False)
 
-  
-def plot_altair(by = 'Overall', ascending = False , show_n = 10):
-    
-        
-    df_nation = df.groupby('Nationality').agg({by:'mean'}).reset_index()
-    df_nation= df_nation.sort_values(by,ascending= ascending)[:show_n]
-    nation_chart = alt.Chart(df_nation).mark_bar().encode(alt.X('Nationality', sort='-y'), alt.Y(by))
-    
-    
-    df_nation = df.groupby('Club').agg({by:'mean'}).reset_index()
-    df_nation= df_nation.sort_values(by,ascending= ascending)[:show_n]
-    club_chart = alt.Chart(df_nation).mark_bar().encode(alt.X('Club', sort='-y'), alt.Y(by))
-    return club_chart&nation_chart
+# updates charts with Rank-by selection 
+# updates only when selected col is numeric
+@app.callback(
+    Output('charts', 'srcDoc'),
+    Input('rankby-widget', 'value'))
+def update_charts(by):
+    global charts
+    if not (np.issubdtype(data[by], int) or
+            np.issubdtype(data[by], float)):
+        return charts
+    else:
+        charts = DataManager().plot_altair(data, by=by).to_html()
+        return charts
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
