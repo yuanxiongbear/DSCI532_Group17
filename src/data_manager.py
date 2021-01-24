@@ -12,7 +12,7 @@ class DataManager():
 
     # retreieve data
     def get_data(self):
-        df = pd.read_csv('../data/processed/processed_data.csv', index_col=0)
+        df = pd.read_csv('data/processed/processed_data.csv', index_col=0)
         return df
 
     # make initial table, land-on page
