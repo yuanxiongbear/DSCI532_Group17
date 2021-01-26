@@ -13,7 +13,7 @@ data = DataManager().get_data()
 
 # land-on page graphics
 table = DataManager().make_table(data)
-charts = DataManager().plot_altair(data)
+chart_natn, chart_club = DataManager().plot_altair(data)
 
 # app layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -75,12 +75,24 @@ app.layout = dbc.Container([
                 id='placebolder-right',
                 style={'height': '10vh'}
             ),
-            html.Div(['Top 10 by Club and by Nationality']),
-            html.Iframe(
-                id='charts',
-                srcDoc=charts.to_html(),
-                style={'border-width': '0', 'width': '150%', 'height': '700px'}
-            ),
+            dbc.Tabs([
+                dbc.Tab(
+                    html.Iframe(
+                        id='natn-chart',
+                        srcDoc=chart_natn.to_html(),
+                        style={'border-width': '0', 'width': '150%', 'height': '700px'}
+                    ),
+                    label='By Nationality'
+                ),
+                dbc.Tab(
+                    html.Iframe(
+                        id='club-chart',
+                        srcDoc=chart_club.to_html(),
+                        style={'border-width': '0', 'width': '150%', 'height': '700px'}
+                    ),
+                    label='By Club'
+                )
+            ])
         ], md=3)
     ])
 ])
@@ -101,16 +113,17 @@ def update_table(by, order, cols, filter_cont, filter_club):
 # updates charts with Rank-by selection 
 # updates only when selected col is numeric
 @app.callback(
-    Output('charts', 'srcDoc'),
+    Output('natn-chart', 'srcDoc'),
+    Output('club-chart', 'srcDoc'),
     Input('rankby-widget', 'value'))
 def update_charts(by):
-    global charts
+    global chart_natn, chart_club
     if not (np.issubdtype(data[by], int) or
             np.issubdtype(data[by], float)):
-        return charts
+        return chart_natn, chart_club
     else:
-        charts = DataManager().plot_altair(data, by=by).to_html()
-        return charts
+        chart_natn, chart_club = DataManager().plot_altair(data, by=by)
+        return chart_natn.to_html(), chart_club.to_html()
 
 
 if __name__ == '__main__':

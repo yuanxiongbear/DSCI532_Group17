@@ -39,7 +39,7 @@ class DataManager():
             alt.Y(by)).properties(
                 height=150,
                 width=200)
-        return club_chart & nation_chart
+        return nation_chart, club_chart
 
 
     # Updates table from given parameters
