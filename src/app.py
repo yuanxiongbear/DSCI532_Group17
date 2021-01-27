@@ -14,6 +14,7 @@ data = DataManager().get_data()
 # land-on page graphics
 table = DataManager().make_table(data)
 chart_natn, chart_club = DataManager().plot_altair(data)
+ranking_histo = DataManager().plot_histo(data)
 
 # app layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -57,7 +58,7 @@ app.layout = dbc.Container([
         ], md=3),
         dbc.Col([
             html.H1('FIFA STAR BOARD', style={'width': '50vh', 'height': '10vh'}),
-            html.H4(['Select Attributes:']),
+            html.H4(['Select Attributes:']), 
             dcc.Dropdown(
                 id='attribute-widget',
                 value=['Name', 'Nationality', 'Age', 'Value(€)', 'Overall'],
@@ -69,6 +70,11 @@ app.layout = dbc.Container([
                 srcDoc=table.to_html(index=False),
                 style={'border-width': '0', 'width': '100%', 'height': '500px'}
             ),
+            html.Iframe(
+                id='rank-histogram',
+                style={'border-width': '0', 'width': '100%', 'height': '500px'},
+                srcDoc=ranking_histo.to_html()
+            )
         ]),
         dbc.Col([
             html.Div(
@@ -110,20 +116,25 @@ def update_table(by, order, cols, filter_cont, filter_club):
                                        cols, filter_cont, filter_club)
     return table.to_html(index=False)
 
-# updates charts with Rank-by selection 
+
+# updates charts with Rank-by selection
 # updates only when selected col is numeric
 @app.callback(
     Output('natn-chart', 'srcDoc'),
     Output('club-chart', 'srcDoc'),
+    Output('rank-histogram', 'srcDoc'),
     Input('rankby-widget', 'value'))
 def update_charts(by):
     global chart_natn, chart_club
+    global ranking_histo
     if not (np.issubdtype(data[by], int) or
             np.issubdtype(data[by], float)):
-        return chart_natn, chart_club
+        return chart_natn, chart_club, ranking_histo
     else:
         chart_natn, chart_club = DataManager().plot_altair(data, by=by)
-        return chart_natn.to_html(), chart_club.to_html()
+        ranking_histo = DataManager().plot_histo(data, by=by)
+        return (chart_natn.to_html(), chart_club.to_html(), 
+                ranking_histo.to_html())
 
 
 if __name__ == '__main__':
