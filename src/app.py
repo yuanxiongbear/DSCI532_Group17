@@ -53,15 +53,7 @@ app.layout = dbc.Container([
                 id='filter-club-widget',
                 value='',
                 options=[{'label': val, 'value': val} for val in data['Club'].dropna().unique()]
-            ),
-            html.Br(),
-            html.Div(['Continent:']),
-            dcc.Dropdown(
-                id='filter-conti-widget',
-                value='',
-                options=[{'label': val, 'value': val} for val in data['Continent'].dropna().unique()])
-            
-
+            )
         ], md=3),
         dbc.Col([
             html.H1('FIFA STAR BOARD', style={'width': '50vh', 'height': '10vh'}),
