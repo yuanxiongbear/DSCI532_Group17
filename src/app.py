@@ -68,7 +68,7 @@ app.layout = dbc.Container([
             html.Iframe(
                 id='table',
                 srcDoc=table.to_html(index=False),
-                style={'border-width': '0', 'width': '100%', 'height': '500px'}
+                style={'border-width': '0', 'width': '100%', 'height': '455px'}
             ),
             html.Iframe(
                 id='rank-histogram',
