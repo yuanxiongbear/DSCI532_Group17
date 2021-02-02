@@ -48,10 +48,10 @@ class DataManager():
 
         alt.data_transformers.disable_max_rows()
         chart = alt.Chart(df).mark_bar().encode(
-            x=alt.X('Ranking', bin=alt.Bin(maxbins=100), title='Ranking'),
-            y=alt.Y(by, scale=alt.Scale(zero=False))
+            x=alt.X(by, bin=alt.Bin(maxbins=50), title=by),
+            y=alt.Y('count()', scale=alt.Scale(zero=False))
         ).properties(
-            width=400,
+            width=450,
             height=100
         )
         return chart

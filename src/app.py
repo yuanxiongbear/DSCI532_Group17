@@ -3,6 +3,7 @@
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_table
 from dash.dependencies import Input, Output
 from data_manager import DataManager
 import dash_bootstrap_components as dbc
@@ -65,11 +66,11 @@ app.layout = dbc.Container([
                 options=[{'label': col, 'value': col} for col in data.columns],
                 multi=True
             ),
-            html.Iframe(
+            html.Div([dash_table.DataTable(
                 id='table',
-                srcDoc=table.to_html(index=False),
-                style={'border-width': '0', 'width': '100%', 'height': '455px'}
-            ),
+                columns=[{"name": i, "id": i} for i in table.columns],
+                data=table.to_dict('records'),
+            )]),
             html.Iframe(
                 id='rank-histogram',
                 style={'border-width': '0', 'width': '100%', 'height': '500px'},
@@ -105,7 +106,8 @@ app.layout = dbc.Container([
 
 # updates table from all 5 dropdowns
 @app.callback(
-    Output('table', 'srcDoc'),
+    Output('table', 'data'),
+    Output('table', 'columns'),
     Input('rankby-widget', 'value'),
     Input('order-widget', 'value'),
     Input('attribute-widget', 'value'),
@@ -114,7 +116,9 @@ app.layout = dbc.Container([
 def update_table(by, order, cols, filter_cont, filter_club):
     table = DataManager().update_table(data, by, order == 'True',
                                        cols, filter_cont, filter_club)
-    return table.to_html(index=False)
+    columns = [{"name": i, "id": i} for i in table.columns]
+
+    return table.to_dict('records'), columns
 
 
 # updates charts with Rank-by selection
