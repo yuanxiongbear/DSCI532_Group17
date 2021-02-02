@@ -39,7 +39,22 @@ class DataManager():
             alt.Y(by)).properties(
                 height=150,
                 width=200)
-        return club_chart & nation_chart
+        return nation_chart, club_chart
+
+    # plot histogram of ranked attribute
+    def plot_histo(self, data, by='Overall', order=False):
+        df = data.sort_values(by, ascending=order)
+        df['Ranking'] = np.linspace(1, len(df), len(df))
+
+        alt.data_transformers.disable_max_rows()
+        chart = alt.Chart(df).mark_bar().encode(
+            x=alt.X(by, bin=alt.Bin(maxbins=50), title=by),
+            y=alt.Y('count()', scale=alt.Scale(zero=False))
+        ).properties(
+            width=450,
+            height=100
+        )
+        return chart
 
 
     # Updates table from given parameters

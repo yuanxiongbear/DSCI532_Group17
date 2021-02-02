@@ -3,6 +3,7 @@
 import dash
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_table
 from dash.dependencies import Input, Output
 from data_manager import DataManager
 import dash_bootstrap_components as dbc
@@ -13,7 +14,8 @@ data = DataManager().get_data()
 
 # land-on page graphics
 table = DataManager().make_table(data)
-charts = DataManager().plot_altair(data)
+chart_natn, chart_club = DataManager().plot_altair(data)
+ranking_histo = DataManager().plot_histo(data)
 
 # app layout
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -57,37 +59,55 @@ app.layout = dbc.Container([
         ], md=3),
         dbc.Col([
             html.H1('FIFA STAR BOARD', style={'width': '50vh', 'height': '10vh'}),
-            html.H4(['Select Attributes:']),
+            html.H4(['Select Attributes:']), 
             dcc.Dropdown(
                 id='attribute-widget',
                 value=['Name', 'Nationality', 'Age', 'Value(€)', 'Overall'],
                 options=[{'label': col, 'value': col} for col in data.columns],
                 multi=True
             ),
-            html.Iframe(
+            html.Div([dash_table.DataTable(
                 id='table',
-                srcDoc=table.to_html(index=False),
-                style={'border-width': '0', 'width': '100%', 'height': '500px'}
-            ),
+                columns=[{"name": i, "id": i} for i in table.columns],
+                data=table.to_dict('records'),
+            )]),
+            html.Iframe(
+                id='rank-histogram',
+                style={'border-width': '0', 'width': '100%', 'height': '500px'},
+                srcDoc=ranking_histo.to_html()
+            )
         ]),
         dbc.Col([
             html.Div(
                 id='placebolder-right',
                 style={'height': '10vh'}
             ),
-            html.Div(['Top 10 by Club and by Nationality']),
-            html.Iframe(
-                id='charts',
-                srcDoc=charts.to_html(),
-                style={'border-width': '0', 'width': '150%', 'height': '700px'}
-            ),
+            dbc.Tabs([
+                dbc.Tab(
+                    html.Iframe(
+                        id='natn-chart',
+                        srcDoc=chart_natn.to_html(),
+                        style={'border-width': '0', 'width': '150%', 'height': '700px'}
+                    ),
+                    label='By Nationality'
+                ),
+                dbc.Tab(
+                    html.Iframe(
+                        id='club-chart',
+                        srcDoc=chart_club.to_html(),
+                        style={'border-width': '0', 'width': '150%', 'height': '700px'}
+                    ),
+                    label='By Club'
+                )
+            ])
         ], md=3)
     ])
 ])
 
 # updates table from all 5 dropdowns
 @app.callback(
-    Output('table', 'srcDoc'),
+    Output('table', 'data'),
+    Output('table', 'columns'),
     Input('rankby-widget', 'value'),
     Input('order-widget', 'value'),
     Input('attribute-widget', 'value'),
@@ -96,21 +116,29 @@ app.layout = dbc.Container([
 def update_table(by, order, cols, filter_cont, filter_club):
     table = DataManager().update_table(data, by, order == 'True',
                                        cols, filter_cont, filter_club)
-    return table.to_html(index=False)
+    columns = [{"name": i, "id": i} for i in table.columns]
 
-# updates charts with Rank-by selection 
+    return table.to_dict('records'), columns
+
+
+# updates charts with Rank-by selection
 # updates only when selected col is numeric
 @app.callback(
-    Output('charts', 'srcDoc'),
+    Output('natn-chart', 'srcDoc'),
+    Output('club-chart', 'srcDoc'),
+    Output('rank-histogram', 'srcDoc'),
     Input('rankby-widget', 'value'))
 def update_charts(by):
-    global charts
+    global chart_natn, chart_club
+    global ranking_histo
     if not (np.issubdtype(data[by], int) or
             np.issubdtype(data[by], float)):
-        return charts
+        return chart_natn, chart_club, ranking_histo
     else:
-        charts = DataManager().plot_altair(data, by=by).to_html()
-        return charts
+        chart_natn, chart_club = DataManager().plot_altair(data, by=by)
+        ranking_histo = DataManager().plot_histo(data, by=by)
+        return (chart_natn.to_html(), chart_club.to_html(), 
+                ranking_histo.to_html())
 
 
 if __name__ == '__main__':
