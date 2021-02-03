@@ -91,6 +91,7 @@ app.layout = dbc.Container([
         ], md=3)
     ])
 ])
+])
 
 # updates table from all 5 dropdowns
 @app.callback(
