@@ -12,7 +12,7 @@ class DataManager():
 
     # retreieve data
     def get_data(self):
-        df = pd.read_csv('../data/processed/processed_data.csv', index_col=0)
+        df = pd.read_csv('data/processed/processed_data.csv', index_col=0)
         return df
 
     # make initial table, land-on page
@@ -39,7 +39,22 @@ class DataManager():
             alt.Y(by)).properties(
                 height=150,
                 width=200)
-        return club_chart & nation_chart
+        return nation_chart, club_chart
+
+    # plot histogram of ranked attribute
+    def plot_histo(self, data, by='Overall', order=False):
+        df = data.sort_values(by, ascending=order)
+        df['Ranking'] = np.linspace(1, len(df), len(df))
+
+        alt.data_transformers.disable_max_rows()
+        chart = alt.Chart(df).mark_bar().encode(
+            x=alt.X(by, bin=alt.Bin(maxbins=50), title=by),
+            y=alt.Y('count()', scale=alt.Scale(zero=False))
+        ).properties(
+            width=450,
+            height=100
+        )
+        return chart
 
 
     # Updates table from given parameters
@@ -53,7 +68,7 @@ class DataManager():
     #
     # return : dataframe, top ten rows of the sorted dataset
     def update_table(self, data, by, order, cols,
-                     filter_cont, filter_club):
+                     filter_cont, filter_club, slider_update):
 
         # column conditions
         # 1. by (sort by) column must be present
@@ -71,7 +86,7 @@ class DataManager():
         table = data[cols]
         table = table.sort_values(by=by, ascending=False)
         table['Ranking'] = np.arange(table.shape[0]) + 1
-        table = table.sort_values(by='Ranking', ascending=order)[:15]
+        table = table.sort_values(by='Ranking', ascending=order)[slider_update-1:slider_update + 14]
 
         # Re-arrange columns
         cols.append('Ranking')
