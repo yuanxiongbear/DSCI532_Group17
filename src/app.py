@@ -1,6 +1,7 @@
 # authors: Yuanzhe Marco Ma, Sicheng Sun, Guanshu Tao, Yuan Xiong
 # date: 2021-01-23
 import dash
+from dash import no_update
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_table
@@ -22,7 +23,7 @@ ranking_histo = DataManager().plot_histo(data)
 
 # prepare data for map
 def prepare_map():
-    df_country = data.groupby(['Nationality']).sum().reset_index()
+    df_country = data.groupby(['Nationality']).mean().reset_index()
     code_df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
     df_country_code = df_country.merge(code_df, left_on='Nationality', right_on='COUNTRY', how='left')
 
@@ -100,7 +101,7 @@ app.layout = dbc.Container([
                             id='table',
                             columns=[{"name": i, "id": i} for i in table.columns],
                             data=table.to_dict('records'),
-                            style_cell={'width': 120}
+                            style_cell={'width': 120, 'minWidth': '25%', 'whiteSpace': 'normal', 'overflow': 'hidden'}
                         )])
                     ])
                 ], label='Table', style={'height': '70vh', 'width': '100vh'}),
@@ -108,7 +109,7 @@ app.layout = dbc.Container([
                     dcc.Graph(id="map-graph"),
                     label='Map'
                 )
-            ]),
+            ], style={'fontSize': 15}),
             
             html.Iframe(
                 id='rank-histogram',
@@ -174,7 +175,7 @@ def update_charts(by):
     global ranking_histo
     if not (np.issubdtype(data[by], int) or
             np.issubdtype(data[by], float)):
-        return chart_natn, chart_club, ranking_histo
+        return no_update
     else:
         chart_natn, chart_club = DataManager().plot_altair(data, by=by)
         ranking_histo = DataManager().plot_histo(data, by=by)
@@ -188,7 +189,10 @@ def update_charts(by):
     [dash.dependencies.Input("rankby-widget", "value")]
 )
 def update_figure(selected):
-    #dff = prepare_confirmed_data()
+    # make sure it's numerical column, otherwise no change
+    if not (np.issubdtype(data[selected], int) or
+            np.issubdtype(data[selected], float)):
+        return no_update
 
     dff = prepare_map()
     dff['hover_text'] = dff["Nationality"] + ": " + dff[selected].apply(str)
@@ -199,13 +203,29 @@ def update_figure(selected):
                           autocolorscale=False,
                           reversescale=True,
                           colorscale="RdBu",marker={'line': {'color': 'rgb(180,180,180)','width': 0.5}},
-                          colorbar={"thickness": 10,"len": 0.3,"x": 0.9,"y": 0.7,
+                          colorbar={"thickness": 10, "len": 0.3, "x": 0.9, "y": 0.7,
                                     'title': {"text": 'sum of attribute', "side": "bottom"},
-                                    'tickvals': [ 2, 10],
-                                    'ticktext': ['100', '100,000']}) 
+                                    'tickvals': [2, 10],
+                                    'ticktext': ['100', '100,000']})
     return {"data": [trace],
-            "layout": go.Layout(height=600, width = 800, margin=dict(l=0, r=0, t=0, b=0), geo={'showframe': False,'showcoastlines': False,
-                                                                      'projection': {'type': "natural earth"}})}
+            "layout": go.Layout(height=600, width=800, margin=dict(l=0, r=0, t=0, b=0), 
+                                geo={'showframe': False, 'showcoastlines': False,
+                                     'projection': {'type': "natural earth"}})}
+
+# additional callback to manually control table column overflow
+@app.callback(
+    Output('table', 'style_cell'),
+    Input('attribute-widget', 'value'),
+    Input('rankby-widget', 'value')
+)
+def table_maintenance(selected_cols, rankby_col):
+    total_cols = len(selected_cols) if rankby_col in selected_cols else len(selected_cols) + 1
+    if (total_cols > 5):
+        return {'width': 650 // total_cols, 'minWidth': '25%',
+                'whiteSpace': 'normal', 'overflow': 'hidden'}
+    else:
+        return no_update
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
