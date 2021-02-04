@@ -19,19 +19,22 @@ table = DataManager().make_table(data)
 chart_natn, chart_club = DataManager().plot_altair(data)
 ranking_histo = DataManager().plot_histo(data)
 
+
 # prepare data for map
 def prepare_map():
     df_country = data.groupby(['Nationality']).sum().reset_index()
     code_df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
     df_country_code = df_country.merge(code_df, left_on='Nationality', right_on='COUNTRY', how='left')
-    
+
     return(df_country_code)
 
+
 # app layout
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css', dbc.themes.BOOTSTRAP]
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
+                        dbc.themes.BOOTSTRAP]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+# app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 app.title = 'Fifa Star Board'
 app.layout = dbc.Container([
@@ -48,6 +51,7 @@ app.layout = dbc.Container([
                 options=[{'label': col, 'value': col} for col in data.columns],
                 multi=True
             ),
+            html.Br(),
             dbc.Row([
                 dbc.Col([
                     html.Div(['Rank By:']),
@@ -82,25 +86,26 @@ app.layout = dbc.Container([
                         options=[{'label': val, 'value': val} for val in data['Club'].dropna().unique()]
                     ),
                 ])
-            ]),           
-            
+            ]),
+            html.Br(),
             dbc.Tabs([
-                dbc.Tab(
+                dbc.Tab([
+                    html.Br(),
                     dbc.Row([
-                        dcc.Slider(id='slider_update', vertical = True, verticalHeight = 500, 
-                                    tooltip = dict(always_visible=True, placement = 'left'),min=1, max=986, 
-                                    step=1, value=0),
+                        dcc.Slider(id='slider_update', vertical=True, verticalHeight=400, 
+                                   tooltip=dict(always_visible=True, placement='left'), min=1, max=986,
+                                   step=1, value=1),
+                        html.Br(),
                         html.Div([dash_table.DataTable(
                             id='table',
                             columns=[{"name": i, "id": i} for i in table.columns],
                             data=table.to_dict('records'),
-                            style_cell={'width' : 120}
+                            style_cell={'width': 120}
                         )])
-                    ]),
-                    label='Table'
-                ),
+                    ])
+                ], label='Table', style={'height': '70vh', 'width': '100vh'}),
                 dbc.Tab(
-                    dcc.Graph(id = "map-graph"),
+                    dcc.Graph(id="map-graph"),
                     label='Map'
                 )
             ]),
