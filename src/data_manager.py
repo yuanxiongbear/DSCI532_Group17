@@ -68,7 +68,7 @@ class DataManager():
     #
     # return : dataframe, top ten rows of the sorted dataset
     def update_table(self, data, by, order, cols,
-                     filter_cont, filter_club):
+                     filter_cont, filter_club, slider_update):
 
         # column conditions
         # 1. by (sort by) column must be present
@@ -86,7 +86,7 @@ class DataManager():
         table = data[cols]
         table = table.sort_values(by=by, ascending=False)
         table['Ranking'] = np.arange(table.shape[0]) + 1
-        table = table.sort_values(by='Ranking', ascending=order)[:15]
+        table = table.sort_values(by='Ranking', ascending=order)[slider_update-1:slider_update + 14]
 
         # Re-arrange columns
         cols.append('Ranking')
