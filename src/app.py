@@ -23,7 +23,7 @@ ranking_histo = DataManager().plot_histo(data)
 
 # prepare data for map
 def prepare_map():
-    df_country = data.groupby(['Nationality']).mean().reset_index()
+    df_country = data.groupby(['Nationality']).sum().reset_index()
     code_df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
     df_country_code = df_country.merge(code_df, left_on='Nationality', right_on='COUNTRY', how='left')
 
@@ -41,7 +41,6 @@ app.title = 'Fifa Star Board'
 app.layout = dbc.Container([
     html.H1('FIFA STAR BOARD', style={'width': '100', 'height': '20', 'textAlign': 'center'}),
     html.Br(),
-    
     dbc.Row([
         dbc.Col([
             
@@ -94,7 +93,7 @@ app.layout = dbc.Container([
                     html.Br(),
                     dbc.Row([
                         dcc.Slider(id='slider_update', vertical=True, verticalHeight=400, 
-                                   tooltip=dict(always_visible=True, placement='left'), min=1, max=986,
+                                   tooltip=dict(always_visible=True, placement='left'), min=1, max=table.shape[0],
                                    step=1, value=1),
                         html.Br(),
                         html.Div([dash_table.DataTable(
@@ -104,19 +103,19 @@ app.layout = dbc.Container([
                             style_cell={'width': 120, 'minWidth': '25%', 'whiteSpace': 'normal', 'overflow': 'hidden'}
                         )])
                     ])
-                ], label='Table', style={'height': '70vh', 'width': '100vh'}),
+                ], label='Table', style={'width': '100vh'}),
                 dbc.Tab(
                     dcc.Graph(id="map-graph"),
-                    label='Map'
+                    label='Map',
+                    style={'width': '100vh'}
                 )
             ], style={'fontSize': 15}),
-            
             html.Iframe(
                 id='rank-histogram',
-                style={'border-width': '0', 'width': '100%', 'height': '500px'},
+                style={'border-width': '0', 'width': '100%', 'height': '200px'},
                 srcDoc=ranking_histo.to_html()
             )
-        ]),
+        ], md=9),
         dbc.Col([
             html.Div(
                 id='placebolder-right',
@@ -140,7 +139,7 @@ app.layout = dbc.Container([
                     label='By Club'
                 )
             ])
-        ], md=3)
+        ])
     ])
 ])
 
@@ -149,6 +148,7 @@ app.layout = dbc.Container([
 @app.callback(
     Output('table', 'data'),
     Output('table', 'columns'),
+    Output('slider_update', 'max'),
     Input('rankby-widget', 'value'),
     Input('order-widget', 'value'),
     Input('attribute-widget', 'value'),
@@ -156,11 +156,11 @@ app.layout = dbc.Container([
     Input('filter-club-widget', 'value'), 
     Input('slider_update', 'value'))
 def update_table(by, order, cols, filter_cont, filter_club, slider_update):
-    table = DataManager().update_table(data, by, order == 'True',
-                                       cols, filter_cont, filter_club, slider_update)
+    table, table_len = DataManager().update_table(data, by, order == 'True',
+                                                  cols, filter_cont, filter_club, slider_update)
     columns = [{"name": i, "id": i} for i in table.columns]
 
-    return table.to_dict('records'), columns
+    return table.to_dict('records'), columns, table_len
 
 
 # updates charts with Rank-by selection
@@ -179,7 +179,7 @@ def update_charts(by):
     else:
         chart_natn, chart_club = DataManager().plot_altair(data, by=by)
         ranking_histo = DataManager().plot_histo(data, by=by)
-        return (chart_natn.to_html(), chart_club.to_html(), 
+        return (chart_natn.to_html(), chart_club.to_html(),
                 ranking_histo.to_html())
 
 
@@ -208,7 +208,7 @@ def update_figure(selected):
                                     'tickvals': [2, 10],
                                     'ticktext': ['100', '100,000']})
     return {"data": [trace],
-            "layout": go.Layout(height=600, width=800, margin=dict(l=0, r=0, t=0, b=0), 
+            "layout": go.Layout(height=500, width=800, margin=dict(l=0, r=0, t=0, b=0), 
                                 geo={'showframe': False, 'showcoastlines': False,
                                      'projection': {'type': "natural earth"}})}
 
