@@ -1,6 +1,7 @@
 # authors: Yuanzhe Marco Ma, Sicheng Sun, Guanshu Tao, Yuan Xiong
 # date: 2021-01-23
 import dash
+from dash import no_update
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_table
@@ -19,25 +20,27 @@ table = DataManager().make_table(data)
 chart_natn, chart_club = DataManager().plot_altair(data)
 ranking_histo = DataManager().plot_histo(data)
 
+
 # prepare data for map
 def prepare_map():
     df_country = data.groupby(['Nationality']).sum().reset_index()
     code_df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
     df_country_code = df_country.merge(code_df, left_on='Nationality', right_on='COUNTRY', how='left')
-    
+
     return(df_country_code)
 
+
 # app layout
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css', dbc.themes.BOOTSTRAP]
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
+                        dbc.themes.BOOTSTRAP]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-#app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+# app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 app.title = 'Fifa Star Board'
 app.layout = dbc.Container([
     html.H1('FIFA STAR BOARD', style={'width': '100', 'height': '20', 'textAlign': 'center'}),
     html.Br(),
-    
     dbc.Row([
         dbc.Col([
             
@@ -48,6 +51,7 @@ app.layout = dbc.Container([
                 options=[{'label': col, 'value': col} for col in data.columns],
                 multi=True
             ),
+            html.Br(),
             dbc.Row([
                 dbc.Col([
                     html.Div(['Rank By:']),
@@ -82,35 +86,36 @@ app.layout = dbc.Container([
                         options=[{'label': val, 'value': val} for val in data['Club'].dropna().unique()]
                     ),
                 ])
-            ]),           
-            
+            ]),
+            html.Br(),
             dbc.Tabs([
-                dbc.Tab(
+                dbc.Tab([
+                    html.Br(),
                     dbc.Row([
-                        dcc.Slider(id='slider_update', vertical = True, verticalHeight = 500, 
-                                    tooltip = dict(always_visible=True, placement = 'left'),min=1, max=986, 
-                                    step=1, value=0),
+                        dcc.Slider(id='slider_update', vertical=True, verticalHeight=400, 
+                                   tooltip=dict(always_visible=True, placement='left'), min=1, max=table.shape[0],
+                                   step=1, value=1),
+                        html.Br(),
                         html.Div([dash_table.DataTable(
                             id='table',
                             columns=[{"name": i, "id": i} for i in table.columns],
                             data=table.to_dict('records'),
-                            style_cell={'width' : 120}
+                            style_cell={'width': 120, 'minWidth': '25%', 'whiteSpace': 'normal', 'overflow': 'hidden'}
                         )])
-                    ]),
-                    label='Table'
-                ),
+                    ])
+                ], label='Table', style={'width': '100vh'}),
                 dbc.Tab(
-                    dcc.Graph(id = "map-graph"),
-                    label='Map'
+                    dcc.Graph(id="map-graph"),
+                    label='Map',
+                    style={'width': '100vh'}
                 )
-            ]),
-            
+            ], style={'fontSize': 15}),
             html.Iframe(
                 id='rank-histogram',
-                style={'border-width': '0', 'width': '100%', 'height': '500px'},
+                style={'border-width': '0', 'width': '100%', 'height': '200px'},
                 srcDoc=ranking_histo.to_html()
             )
-        ]),
+        ], md=9),
         dbc.Col([
             html.Div(
                 id='placebolder-right',
@@ -134,7 +139,7 @@ app.layout = dbc.Container([
                     label='By Club'
                 )
             ])
-        ], md=3)
+        ])
     ])
 ])
 
@@ -143,6 +148,7 @@ app.layout = dbc.Container([
 @app.callback(
     Output('table', 'data'),
     Output('table', 'columns'),
+    Output('slider_update', 'max'),
     Input('rankby-widget', 'value'),
     Input('order-widget', 'value'),
     Input('attribute-widget', 'value'),
@@ -150,11 +156,11 @@ app.layout = dbc.Container([
     Input('filter-club-widget', 'value'), 
     Input('slider_update', 'value'))
 def update_table(by, order, cols, filter_cont, filter_club, slider_update):
-    table = DataManager().update_table(data, by, order == 'True',
-                                       cols, filter_cont, filter_club, slider_update)
+    table, table_len = DataManager().update_table(data, by, order == 'True',
+                                                  cols, filter_cont, filter_club, slider_update)
     columns = [{"name": i, "id": i} for i in table.columns]
 
-    return table.to_dict('records'), columns
+    return table.to_dict('records'), columns, table_len
 
 
 # updates charts with Rank-by selection
@@ -169,11 +175,11 @@ def update_charts(by):
     global ranking_histo
     if not (np.issubdtype(data[by], int) or
             np.issubdtype(data[by], float)):
-        return chart_natn, chart_club, ranking_histo
+        return no_update
     else:
         chart_natn, chart_club = DataManager().plot_altair(data, by=by)
         ranking_histo = DataManager().plot_histo(data, by=by)
-        return (chart_natn.to_html(), chart_club.to_html(), 
+        return (chart_natn.to_html(), chart_club.to_html(),
                 ranking_histo.to_html())
 
 
@@ -183,7 +189,10 @@ def update_charts(by):
     [dash.dependencies.Input("rankby-widget", "value")]
 )
 def update_figure(selected):
-    #dff = prepare_confirmed_data()
+    # make sure it's numerical column, otherwise no change
+    if not (np.issubdtype(data[selected], int) or
+            np.issubdtype(data[selected], float)):
+        return no_update
 
     dff = prepare_map()
     dff['hover_text'] = dff["Nationality"] + ": " + dff[selected].apply(str)
@@ -194,13 +203,29 @@ def update_figure(selected):
                           autocolorscale=False,
                           reversescale=True,
                           colorscale="RdBu",marker={'line': {'color': 'rgb(180,180,180)','width': 0.5}},
-                          colorbar={"thickness": 10,"len": 0.3,"x": 0.9,"y": 0.7,
+                          colorbar={"thickness": 10, "len": 0.3, "x": 0.9, "y": 0.7,
                                     'title': {"text": 'sum of attribute', "side": "bottom"},
-                                    'tickvals': [ 2, 10],
-                                    'ticktext': ['100', '100,000']}) 
+                                    'tickvals': [2, 10],
+                                    'ticktext': ['100', '100,000']})
     return {"data": [trace],
-            "layout": go.Layout(height=600, width = 800, margin=dict(l=0, r=0, t=0, b=0), geo={'showframe': False,'showcoastlines': False,
-                                                                      'projection': {'type': "natural earth"}})}
+            "layout": go.Layout(height=500, width=800, margin=dict(l=0, r=0, t=0, b=0), 
+                                geo={'showframe': False, 'showcoastlines': False,
+                                     'projection': {'type': "natural earth"}})}
+
+# additional callback to manually control table column overflow
+@app.callback(
+    Output('table', 'style_cell'),
+    Input('attribute-widget', 'value'),
+    Input('rankby-widget', 'value')
+)
+def table_maintenance(selected_cols, rankby_col):
+    total_cols = len(selected_cols) if rankby_col in selected_cols else len(selected_cols) + 1
+    if (total_cols > 5):
+        return {'width': 650 // total_cols, 'minWidth': '25%',
+                'whiteSpace': 'normal', 'overflow': 'hidden'}
+    else:
+        return no_update
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
