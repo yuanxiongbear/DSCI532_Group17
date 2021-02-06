@@ -23,7 +23,7 @@ ranking_histo = DataManager().plot_histo(data)
 
 # prepare data for map
 def prepare_map():
-    df_country = data.groupby(['Nationality']).sum().reset_index()
+    df_country = data.groupby(['Nationality']).mean().round(2).reset_index()
     code_df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
     df_country_code = df_country.merge(code_df, left_on='Nationality', right_on='COUNTRY', how='left')
 
@@ -124,7 +124,7 @@ app.layout = dbc.Container([
                             id='table',
                             columns=[{"name": i, "id": i} for i in table.columns],
                             data=table.to_dict('records'),
-                            style_cell={'width': 120, 
+                            style_cell={'width': 100, 
                                         'minWidth': '25%', 
                                         'whiteSpace': 'normal', 
                                         'overflow': 'hidden', 
@@ -223,13 +223,13 @@ def update_charts(by):
 
 
 @app.callback(
-    dash.dependencies.Output("map-graph", "figure"),
-    [dash.dependencies.Input("rankby-widget", "value")]
+    Output("map-graph", "figure"),
+    Input("rankby-widget", "value")
 )
 def update_figure(selected):
     # make sure it's numerical column, otherwise no change
-    if not (np.issubdtype(data[selected], int) or
-            np.issubdtype(data[selected], float)):
+    #if data[selected]
+    if type(data[selected][0]) == str:
         return no_update
 
     dff = prepare_map()
@@ -242,9 +242,9 @@ def update_figure(selected):
                           reversescale=True,
                           colorscale="RdBu",marker={'line': {'color': 'rgb(180,180,180)','width': 0.5}},
                           colorbar={"thickness": 10, "len": 0.3, "x": 0.9, "y": 0.7,
-                                    'title': {"text": 'sum of attribute', "side": "bottom"},
+                                    'title': {"text": 'mean of attribute', "side": "bottom"},
                                     'tickvals': [2, 10],
-                                    'ticktext': ['100', '100,000']})
+                                    'ticktext': ['100', '100,00']})
     return {"data": [trace],
             "layout": go.Layout(height=500, width=800, margin=dict(l=0, r=0, t=0, b=0), 
                                 geo={'showframe': False, 'showcoastlines': False,
