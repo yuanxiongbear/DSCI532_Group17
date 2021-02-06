@@ -150,7 +150,7 @@ app.layout = dbc.Container([
             ], style={'fontSize': 15}),
             html.Iframe(
                 id='rank-histogram',
-                style={'border-width': '0', 'width': '100%', 'height': '200px'},
+                style={'border-width': '0', 'width': '200%', 'height': '200px'},
                 srcDoc=ranking_histo.to_html()
             )
         ], md=9),
@@ -234,17 +234,17 @@ def update_figure(selected):
 
     dff = prepare_map()
     dff['hover_text'] = dff["Nationality"] + ": " + dff[selected].apply(str)
-    trace = go.Choropleth(locations=dff['CODE'],z=np.log(dff[selected]),
+    trace = go.Choropleth(locations=dff['CODE'],z = dff[selected],
                           text=dff['hover_text'],
                           hoverinfo="text",
                           marker_line_color='white',
                           autocolorscale=False,
+                          showscale = True,
+                          showlegend = True,
                           reversescale=True,
                           colorscale="RdBu",marker={'line': {'color': 'rgb(180,180,180)','width': 0.5}},
                           colorbar={"thickness": 10, "len": 0.3, "x": 0.9, "y": 0.7,
-                                    'title': {"text": 'mean of attribute', "side": "bottom"},
-                                    'tickvals': [2, 10],
-                                    'ticktext': ['100', '100,00']})
+                                    'title': {"text": 'mean of attribute', "side": "top"}})
     return {"data": [trace],
             "layout": go.Layout(height=500, width=800, margin=dict(l=0, r=0, t=0, b=0), 
                                 geo={'showframe': False, 'showcoastlines': False,
