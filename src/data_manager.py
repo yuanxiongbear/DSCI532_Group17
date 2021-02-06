@@ -28,7 +28,8 @@ class DataManager():
         df_nation = df_nation.sort_values(by, ascending=ascending)[:show_n]
         nation_chart = alt.Chart(df_nation).mark_bar().encode(
             alt.X('Nationality', sort='-y'),
-            alt.Y(by)).properties(
+            alt.Y(by),
+            tooltip = alt.Tooltip(by)).properties(
                 height=150,
                 width=200)
 
@@ -36,10 +37,23 @@ class DataManager():
         df_club = df_club.sort_values(by, ascending=ascending)[:show_n]
         club_chart = alt.Chart(df_club).mark_bar().encode(
             alt.X('Club', sort='-y'),
-            alt.Y(by)).properties(
+            alt.Y(by),
+            tooltip = alt.Tooltip(by)).properties(
                 height=150,
                 width=200)
-        return nation_chart, club_chart
+
+
+        # alt.data_transformers.disable_max_rows()
+        # scatter = alt.Chart(data).mark_circle( opacity = 0.5, size=10 ).encode(
+        #     alt.X(by),
+        #     alt.Y('Overall')
+        # ).properties(
+        #         height=250,
+        #         width=300)
+
+
+
+        return nation_chart, club_chart  # scatter
 
     # plot histogram of ranked attribute
     def plot_histo(self, data, by='Overall', order=False):
@@ -49,7 +63,8 @@ class DataManager():
         alt.data_transformers.disable_max_rows()
         chart = alt.Chart(df).mark_bar().encode(
             x=alt.X(by, bin=alt.Bin(maxbins=50), title=by),
-            y=alt.Y('count()', scale=alt.Scale(zero=False))
+            y=alt.Y('count()', scale=alt.Scale(zero=False)),
+            tooltip = alt.Tooltip(by)
         ).properties(
             width=450,
             height=100
@@ -86,12 +101,13 @@ class DataManager():
         table = data[cols]
         table = table.sort_values(by=by, ascending=False)
         table['Ranking'] = np.arange(table.shape[0]) + 1
-        table = table.sort_values(by='Ranking', ascending=order)[slider_update - 1:slider_update + 14]
+        table_length = table.shape[0] # before trim
+        table = table.sort_values(by='Ranking', ascending=order)[slider_update - 1: slider_update + 14]
 
         # Re-arrange columns
         cols.append('Ranking')
         cols.insert(0, cols.pop(cols.index('Name')))
         cols.insert(0, cols.pop(cols.index('Ranking')))
         table = table[cols]
-        return table
+        return table, table_length
 

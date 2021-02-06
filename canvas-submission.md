@@ -1,4 +1,4 @@
-Paste the link to you GitHub.com milestone release here. https://github.com/UBC-MDS/DSCI532_Group17/releases/tag/v1.0
+Paste the link to you GitHub.com milestone release here. https://github.com/UBC-MDS/DSCI532_Group17/releases/tag/v2.0
 Then submit this file manually on canvas.
 
 
