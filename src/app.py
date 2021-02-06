@@ -17,7 +17,7 @@ data = DataManager().get_data()
 
 # land-on page graphics
 table = DataManager().make_table(data)
-chart_natn, chart_club = DataManager().plot_altair(data)
+chart_natn, chart_club, scatter = DataManager().plot_altair(data)
 ranking_histo = DataManager().plot_histo(data)
 
 
@@ -155,16 +155,16 @@ app.layout = dbc.Container([
             )
         ], md=9),
         dbc.Col([
-            html.Div(
-                id='placebolder-right',
-                style={'height': '10vh'}
-            ),
+            #html.Div(
+            #    id='placebolder-right',
+            #    style={'height': '10vh'}
+            #),
             dbc.Tabs([
                 dbc.Tab(
                     html.Iframe(
                         id='natn-chart',
                         srcDoc=chart_natn.to_html(),
-                        style={'border-width': '0', 'width': '150%', 'height': '700px'}
+                        style={'border-width': '0', 'width': '150%', 'height': '400px'}
                     ),
                     label='By Nationality'
                 ),
@@ -172,11 +172,15 @@ app.layout = dbc.Container([
                     html.Iframe(
                         id='club-chart',
                         srcDoc=chart_club.to_html(),
-                        style={'border-width': '0', 'width': '150%', 'height': '700px'}
+                        style={'border-width': '0', 'width': '150%', 'height': '400px'}
                     ),
                     label='By Club'
                 )
-            ])
+            ]),
+            html.Iframe(
+                        id='scatter',
+                        srcDoc=scatter.to_html(),
+                        style={'border-width': '0', 'width': '160%', 'height': '400px'})
         ])
     ])
 ])
@@ -206,18 +210,20 @@ def update_table(by, order, cols, filter_cont, filter_club, slider_update):
 @app.callback(
     Output('natn-chart', 'srcDoc'),
     Output('club-chart', 'srcDoc'),
+    Output('scatter', 'srcDoc'),
     Output('rank-histogram', 'srcDoc'),
     Input('rankby-widget', 'value'))
 def update_charts(by):
-    global chart_natn, chart_club
+    global chart_natn, chart_club, scatter
     global ranking_histo
     if not (np.issubdtype(data[by], int) or
             np.issubdtype(data[by], float)):
         return no_update
     else:
-        chart_natn, chart_club = DataManager().plot_altair(data, by=by)
+        chart_natn, chart_club, scatter = DataManager().plot_altair(data, by=by)
         ranking_histo = DataManager().plot_histo(data, by=by)
-        return (chart_natn.to_html(), chart_club.to_html(),
+        
+        return (chart_natn.to_html(), chart_club.to_html(), scatter.to_html(),
                 ranking_histo.to_html())
 
 
