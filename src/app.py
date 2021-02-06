@@ -37,9 +37,15 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 # app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
-app.title = 'Fifa Star Board'
+app.title = 'FIFA19 Star Board'
 app.layout = dbc.Container([
-    html.H1('FIFA STAR BOARD', style={'width': '100', 'height': '20', 'textAlign': 'center'}),
+    html.H1('FIFA19 STAR BOARD', style={'backgroundColor': 'lightslategrey',
+                                        'padding' : 25,
+                                        'margin-top': 20,
+                                        'margin-bottom': 10, 
+                                        'font-size': '44px',
+                                        'color' : 'white', 
+                                        'textAlign': 'center',}),
     html.Br(),
     dbc.Row([
         dbc.Col([
@@ -49,41 +55,59 @@ app.layout = dbc.Container([
                 id='attribute-widget',
                 value=['Name', 'Nationality', 'Age', 'Value(€)', 'Overall'],
                 options=[{'label': col, 'value': col} for col in data.columns],
-                multi=True
+                multi=True,
+                style={'font-size': '14px'
+                }
             ),
             html.Br(),
             dbc.Row([
                 dbc.Col([
-                    html.Div(['Rank By:']),
+                    html.Div(['Rank By:'], style={'font-size': '14px'}),
                     dcc.Dropdown(
                         id='rankby-widget',
                         value='Overall',
-                        options=[{'label': col, 'value': col} for col in data.columns]
+                        options=[{'label': col, 'value': col} for col in data.columns],
+                        style={
+                           'background-color': '#e6e6e6',
+                           'font-size': '14px'
+                        }
                     ),
                 ]),
                 dbc.Col([
-                    html.Div(['Order:']),
+                    html.Div(['Order:'], style={'font-size': '14px'}),
                     dcc.Dropdown(
                         id='order-widget',
                         value='True',
                         options=[{'label': 'Descending', 'value': 'False'},
-                                 {'label': 'Ascending', 'value': 'True'}]
+                                 {'label': 'Ascending', 'value': 'True'}],
+                        style={
+                            'background-color': '#e6e6e6',
+                            'font-size': '14px'
+                        }
                     ),
                 ]),
                 dbc.Col([
-                    html.Div(['Continent:']),
+                    html.Div(['Continent:'], style={'font-size': '14px'}),
                     dcc.Dropdown(
                         id='filter-cont-widget',
                         value='',
-                        options=[{'label': val, 'value': val} for val in data['Continent'].unique()]
+                        options=[{'label': val, 'value': val} for val in data['Continent'].unique()],
+                        style={
+                            'background-color': '#e6e6e6',
+                            'font-size': '14px'
+                        }
                     ),
                 ]),
                 dbc.Col([
-                    html.Div(['Club:']),
+                    html.Div(['Club:'], style={'font-size': '14px'}),
                     dcc.Dropdown(
                         id='filter-club-widget',
                         value='',
-                        options=[{'label': val, 'value': val} for val in data['Club'].dropna().unique()]
+                        options=[{'label': val, 'value': val} for val in data['Club'].dropna().unique()],
+                        style={
+                            'background-color': '#e6e6e6',
+                            'font-size': '14px'
+                        }
                     ),
                 ])
             ]),
@@ -100,7 +124,21 @@ app.layout = dbc.Container([
                             id='table',
                             columns=[{"name": i, "id": i} for i in table.columns],
                             data=table.to_dict('records'),
-                            style_cell={'width': 120, 'minWidth': '25%', 'whiteSpace': 'normal', 'overflow': 'hidden'}
+                            style_cell={'width': 120, 
+                                        'minWidth': '25%', 
+                                        'whiteSpace': 'normal', 
+                                        'overflow': 'hidden', 
+                                        'font-size': '12px',
+                                        'textAlign': 'right'},
+                            style_header={'backgroundColor': 'lightslategrey',
+                                          'color' : 'white',
+                                          'fontWeight': 'bold',
+                                          'textAlign': 'right',
+                                          'font-size': '12px'
+                                        },
+                            style_data_conditional=[{
+                                        'if': {'row_index': 'odd'},
+                                        'backgroundColor': 'navajowhite'}]
                         )])
                     ])
                 ], label='Table', style={'width': '100vh'}),
