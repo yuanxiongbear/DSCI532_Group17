@@ -43,8 +43,17 @@ class DataManager():
                 width=200)
 
 
+        # alt.data_transformers.disable_max_rows()
+        # scatter = alt.Chart(data).mark_circle( opacity = 0.5, size=10 ).encode(
+        #     alt.X(by),
+        #     alt.Y('Overall')
+        # ).properties(
+        #         height=250,
+        #         width=300)
 
-        return nation_chart, club_chart
+
+
+        return nation_chart, club_chart  # scatter
 
     # plot histogram of ranked attribute
     def plot_histo(self, data, by='Overall', order=False):
