@@ -20,16 +20,6 @@ table = DataManager().make_table(data)
 chart_natn, chart_club, scatter = DataManager().plot_altair(data)
 ranking_histo = DataManager().plot_histo(data)
 
-
-# prepare data for map
-def prepare_map():
-    df_country = data.groupby(['Nationality']).mean().round(2).reset_index()
-    code_df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
-    df_country_code = df_country.merge(code_df, left_on='Nationality', right_on='COUNTRY', how='left')
-
-    return(df_country_code)
-
-
 # app layout
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
                         dbc.themes.BOOTSTRAP]
@@ -40,23 +30,22 @@ server = app.server
 app.title = 'FIFA19 Star Board'
 app.layout = dbc.Container([
     html.H1('FIFA19 STAR BOARD', style={'backgroundColor': '#697d8d',
-                                        'padding' : 25,
+                                        'padding': 25,
                                         'margin-top': 20,
-                                        'margin-bottom': 10, 
+                                        'margin-bottom': 10,
                                         'font-size': '44px',
-                                        'color' : 'white', 
-                                        'textAlign': 'center',}),
+                                        'color': 'white',
+                                        'textAlign': 'center'}),
     html.Br(),
     dbc.Row([
         dbc.Col([
-            html.H4(['Select Attributes:']), 
+            html.H4(['Select Attributes:']),
             dcc.Dropdown(
                 id='attribute-widget',
                 value=['Name', 'Nationality', 'Age', 'Value(€)', 'Overall'],
                 options=[{'label': col, 'value': col} for col in data.columns],
                 multi=True,
-                style={'font-size': '14px'
-                }
+                style={'font-size': '14px'}
             ),
             html.Br(),
             dbc.Row([
@@ -134,7 +123,7 @@ app.layout = dbc.Container([
                                           'fontWeight': 'bold',
                                           'textAlign': 'right',
                                           'font-size': '12px'
-                                        },
+                                         },
                             style_data_conditional=[{
                                         'if': {'row_index': 'odd'},
                                         'backgroundColor': 'navajowhite'}]
@@ -154,10 +143,6 @@ app.layout = dbc.Container([
             )
         ], md=9),
         dbc.Col([
-            #html.Div(
-            #    id='placebolder-right',
-            #    style={'height': '10vh'}
-            #),
             dbc.Tabs([
                 dbc.Tab(
                     html.Iframe(
@@ -186,6 +171,17 @@ app.layout = dbc.Container([
 
 
 # updates table from all 5 dropdowns
+# Inputs: 
+#     by : string, the column to rank by
+#     order : string, descending or ascending
+#     cols : list of string, the columns selected to present
+#     filter_cont : string, the continent to filter on
+#     filter_club : string, the club to filter on
+#     slider_update : number, the location of the slider
+# Returns:
+#     data : dict
+#     columns : list of string
+#     slider_max : number
 @app.callback(
     Output('table', 'data'),
     Output('table', 'columns'),
@@ -204,8 +200,15 @@ def update_table(by, order, cols, filter_cont, filter_club, slider_update):
     return table.to_dict('records'), columns, table_len
 
 
-# updates charts with Rank-by selection
-# updates only when selected col is numeric
+# Updates charts with Rank-by selection
+# Updates only when selected col is numeric
+# Inputs:
+#     by : string, the rank-by column selected
+# Returns:
+#     srcDoc : bar-plot by nationality
+#     srcDoc : bar-plot by clubs
+#     srcDoc : scatter-plot
+#     slider_max : number
 @app.callback(
     Output('natn-chart', 'srcDoc'),
     Output('club-chart', 'srcDoc'),
@@ -226,28 +229,31 @@ def update_charts(by):
                 ranking_histo.to_html())
 
 
-
+# Updates map according to rank-by column
+# Inputs: 
+#     by : string, the rank-by column selected
+# Returns:
+#     figure : the output map
 @app.callback(
     Output("map-graph", "figure"),
     Input("rankby-widget", "value")
 )
 def update_figure(selected):
     # make sure it's numerical column, otherwise no change
-    #if data[selected]
     if type(data[selected][0]) == str:
         return no_update
 
-    dff = prepare_map()
+    dff = DataManager.prepare_map(data)
     dff['hover_text'] = dff["Nationality"] + ": " + dff[selected].apply(str)
-    trace = go.Choropleth(locations=dff['CODE'],z = dff[selected],
+    trace = go.Choropleth(locations=dff['CODE'], z=dff[selected],
                           text=dff['hover_text'],
                           hoverinfo="text",
                           marker_line_color='white',
                           autocolorscale=False,
-                          showscale = True,
-                          showlegend = True,
+                          showscale=True,
+                          showlegend=True,
                           reversescale=True,
-                          colorscale="RdBu",marker={'line': {'color': 'rgb(180,180,180)','width': 0.5}},
+                          colorscale="RdBu", marker={'line': {'color': 'rgb(180,180,180)', 'width': 0.5}},
                           colorbar={"thickness": 10, "len": 0.3, "x": 0.9, "y": 0.7,
                                     'title': {"text": 'mean of attribute', "side": "top"}})
 
@@ -256,7 +262,14 @@ def update_figure(selected):
                                 geo={'showframe': False, 'showcoastlines': False,
                                      'projection': {'type': "natural earth"}})}
 
-# additional callback to manually control table column overflow
+
+# Additional callback to manually control table overflow
+# When there are too many columns, column size are shrunk to fit in display area
+# Inputs: 
+#     selected_cols : list of string, the attributes selected
+#     rankby_col : string, the rank-by column selected
+# Returns:
+#     style_cell : style configuration of the dash table
 @app.callback(
     Output('table', 'style_cell'),
     Input('attribute-widget', 'value'),
