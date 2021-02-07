@@ -24,7 +24,7 @@ ranking_histo = DataManager().plot_histo(data)
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
                         dbc.themes.BOOTSTRAP]
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__, title='FIFA19 DASHBOARD', external_stylesheets=external_stylesheets)
 # app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 app.title = 'FIFA19 Star Board'
@@ -131,10 +131,11 @@ app.layout = dbc.Container([
                     ]),
                     html.Div([
                         '**Overall and potential rating are calculated by FIFA19 development team.',
+                        html.Br(),
                         'For more information on how they care calculated, please visit ',
                         html.A('https://www.fifauteam.com/player-ratings-guide-fifa-19/',
-                            href='https://www.fifauteam.com/player-ratings-guide-fifa-19/',
-                            target="_blank")
+                                href='https://www.fifauteam.com/player-ratings-guide-fifa-19/',
+                                target="_blank")
                     ], style={'margin-left': '50px'}
                     )
                 ], label='Table', style={'width': '100vh', 'height': '65vh'}),
