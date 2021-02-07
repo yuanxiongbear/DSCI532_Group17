@@ -17,7 +17,7 @@ data = DataManager().get_data()
 
 # land-on page graphics
 table = DataManager().make_table(data)
-chart_natn, chart_club = DataManager().plot_altair(data)
+chart_natn, chart_club, scatter = DataManager().plot_altair(data)
 ranking_histo = DataManager().plot_histo(data)
 
 
@@ -150,21 +150,21 @@ app.layout = dbc.Container([
             ], style={'fontSize': 15}),
             html.Iframe(
                 id='rank-histogram',
-                style={'border-width': '0', 'width': '100%', 'height': '200px'},
+                style={'border-width': '0', 'width': '200%', 'height': '200px'},
                 srcDoc=ranking_histo.to_html()
             )
         ], md=9),
         dbc.Col([
-            html.Div(
-                id='placebolder-right',
-                style={'height': '10vh'}
-            ),
+            #html.Div(
+            #    id='placebolder-right',
+            #    style={'height': '10vh'}
+            #),
             dbc.Tabs([
                 dbc.Tab(
                     html.Iframe(
                         id='natn-chart',
                         srcDoc=chart_natn.to_html(),
-                        style={'border-width': '0', 'width': '150%', 'height': '700px'}
+                        style={'border-width': '0', 'width': '150%', 'height': '400px'}
                     ),
                     label='By Nationality'
                 ),
@@ -172,11 +172,15 @@ app.layout = dbc.Container([
                     html.Iframe(
                         id='club-chart',
                         srcDoc=chart_club.to_html(),
-                        style={'border-width': '0', 'width': '150%', 'height': '700px'}
+                        style={'border-width': '0', 'width': '150%', 'height': '400px'}
                     ),
                     label='By Club'
                 )
-            ])
+            ]),
+            html.Iframe(
+                        id='scatter',
+                        srcDoc=scatter.to_html(),
+                        style={'border-width': '0', 'width': '160%', 'height': '400px'})
         ])
     ])
 ])
@@ -206,18 +210,20 @@ def update_table(by, order, cols, filter_cont, filter_club, slider_update):
 @app.callback(
     Output('natn-chart', 'srcDoc'),
     Output('club-chart', 'srcDoc'),
+    Output('scatter', 'srcDoc'),
     Output('rank-histogram', 'srcDoc'),
     Input('rankby-widget', 'value'))
 def update_charts(by):
-    global chart_natn, chart_club
+    global chart_natn, chart_club, scatter
     global ranking_histo
     if not (np.issubdtype(data[by], int) or
             np.issubdtype(data[by], float)):
         return no_update
     else:
-        chart_natn, chart_club = DataManager().plot_altair(data, by=by)
+        chart_natn, chart_club, scatter = DataManager().plot_altair(data, by=by)
         ranking_histo = DataManager().plot_histo(data, by=by)
-        return (chart_natn.to_html(), chart_club.to_html(),
+        
+        return (chart_natn.to_html(), chart_club.to_html(), scatter.to_html(),
                 ranking_histo.to_html())
 
 
@@ -234,14 +240,17 @@ def update_figure(selected):
 
     dff = prepare_map()
     dff['hover_text'] = dff["Nationality"] + ": " + dff[selected].apply(str)
-    trace = go.Choropleth(locations=dff['CODE'],z=np.log(dff[selected]),
+    trace = go.Choropleth(locations=dff['CODE'],z = dff[selected],
                           text=dff['hover_text'],
                           hoverinfo="text",
                           marker_line_color='white',
                           autocolorscale=False,
+                          showscale = True,
+                          showlegend = True,
                           reversescale=True,
                           colorscale="RdBu",marker={'line': {'color': 'rgb(180,180,180)','width': 0.5}},
                           colorbar={"thickness": 10, "len": 0.3, "x": 0.9, "y": 0.7,
+#                                     'title': {"text": 'mean of attribute', "side": "top"}})
                                     'title': {"text": 'mean of attribute', "side": "bottom"},
                                     'tickvals': [2, 10],
                                     'ticktext': ['100', '100,00']})

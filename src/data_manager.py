@@ -24,36 +24,38 @@ class DataManager():
 
     # make initial charts, land-on page
     def plot_altair(self, data, by='Overall', ascending=False, show_n=10):
+#         df_nation = data.groupby('Nationality').agg({by: 'mean'}).round(2).reset_index()
         df_nation = data.groupby('Nationality').agg({by: 'mean'}).round(4).reset_index()
         df_nation = df_nation.sort_values(by, ascending=ascending)[:show_n]
         nation_chart = alt.Chart(df_nation).mark_bar().encode(
             alt.X('Nationality', sort='-y'),
-            alt.Y(by),
+            alt.Y(by, scale=alt.Scale(domain=(70, 80))),
             tooltip = alt.Tooltip(by)).properties(
                 height=150,
                 width=200)
 
+#         df_club = data.groupby('Club').agg({by: 'mean'}).round(2).reset_index()
         df_club = data.groupby('Club').agg({by: 'mean'}).round(4).reset_index()
         df_club = df_club.sort_values(by, ascending=ascending)[:show_n]
         club_chart = alt.Chart(df_club).mark_bar().encode(
             alt.X('Club', sort='-y'),
-            alt.Y(by),
+            alt.Y(by, scale=alt.Scale(domain=(75, 85))),
             tooltip = alt.Tooltip(by)).properties(
                 height=150,
                 width=200)
 
 
-        # alt.data_transformers.disable_max_rows()
-        # scatter = alt.Chart(data).mark_circle( opacity = 0.5, size=10 ).encode(
-        #     alt.X(by),
-        #     alt.Y('Overall')
-        # ).properties(
-        #         height=250,
-        #         width=300)
+        alt.data_transformers.disable_max_rows()
+        scatter = alt.Chart(data).mark_circle( opacity = 0.5, size=10 ).encode(
+             alt.X(by),
+             alt.Y('Overall')
+         ).properties(
+                 height=250,
+                 width=300)
 
 
 
-        return nation_chart, club_chart  # scatter
+        return nation_chart, club_chart, scatter
 
     # plot histogram of ranked attribute
     def plot_histo(self, data, by='Overall', order=False):
@@ -63,7 +65,7 @@ class DataManager():
         alt.data_transformers.disable_max_rows()
         chart = alt.Chart(df).mark_bar().encode(
             x=alt.X(by, bin=alt.Bin(maxbins=50), title=by),
-            y=alt.Y('count()', scale=alt.Scale(zero=False)),
+            y=alt.Y('count()', scale=alt.Scale(zero = False)),
             tooltip = alt.Tooltip(by)
         ).properties(
             width=450,
