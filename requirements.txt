@@ -7,4 +7,8 @@ plotly==4.14.3
 vega_datasets
 pycountry_convert==0.7.2
 numpy
+<<<<<<< HEAD
 numerize
+=======
+numerize
+>>>>>>> 431140b012522ea8f5c759dbd5285071a1d173f8
