@@ -8,7 +8,11 @@ vega_datasets
 pycountry_convert==0.7.2
 numpy
 <<<<<<< HEAD
+<<<<<<< HEAD
 numerize
 =======
 numerize
 >>>>>>> 431140b012522ea8f5c759dbd5285071a1d173f8
+=======
+numerize
+>>>>>>> 5089e03bd734c048e8ad28bda9b956ccbe2148a0
