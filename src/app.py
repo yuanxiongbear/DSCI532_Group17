@@ -39,7 +39,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 app.title = 'FIFA19 Star Board'
 app.layout = dbc.Container([
-    html.H1('FIFA19 STAR BOARD', style={'backgroundColor': 'lightslategrey',
+    html.H1('FIFA19 STAR BOARD', style={'backgroundColor': '#697d8d',
                                         'padding' : 25,
                                         'margin-top': 20,
                                         'margin-bottom': 10, 
@@ -49,7 +49,6 @@ app.layout = dbc.Container([
     html.Br(),
     dbc.Row([
         dbc.Col([
-            
             html.H4(['Select Attributes:']), 
             dcc.Dropdown(
                 id='attribute-widget',
@@ -124,7 +123,7 @@ app.layout = dbc.Container([
                             id='table',
                             columns=[{"name": i, "id": i} for i in table.columns],
                             data=table.to_dict('records'),
-                            style_cell={'width': 100, 
+                            style_cell={'width': 120, 
                                         'minWidth': '25%', 
                                         'whiteSpace': 'normal', 
                                         'overflow': 'hidden', 
@@ -141,16 +140,16 @@ app.layout = dbc.Container([
                                         'backgroundColor': 'navajowhite'}]
                         )])
                     ])
-                ], label='Table', style={'width': '100vh'}),
+                ], label='Table', style={'width': '100vh', 'height': '65vh'}),
                 dbc.Tab(
                     dcc.Graph(id="map-graph"),
                     label='Map',
-                    style={'width': '100vh'}
+                    style={'width': '100vh', 'height': '65vh'}
                 )
             ], style={'fontSize': 15}),
             html.Iframe(
                 id='rank-histogram',
-                style={'border-width': '0', 'width': '200%', 'height': '200px'},
+                style={'border-width': '0', 'width': '200%', 'height': '200px', 'margin-left': '80px'},
                 srcDoc=ranking_histo.to_html()
             )
         ], md=9),
@@ -164,7 +163,7 @@ app.layout = dbc.Container([
                     html.Iframe(
                         id='natn-chart',
                         srcDoc=chart_natn.to_html(),
-                        style={'border-width': '0', 'width': '150%', 'height': '400px'}
+                        style={'border-width': '0', 'width': '150%', 'height': '350px'}
                     ),
                     label='By Nationality'
                 ),
@@ -172,15 +171,15 @@ app.layout = dbc.Container([
                     html.Iframe(
                         id='club-chart',
                         srcDoc=chart_club.to_html(),
-                        style={'border-width': '0', 'width': '150%', 'height': '400px'}
+                        style={'border-width': '0', 'width': '150%', 'height': '350px'}
                     ),
                     label='By Club'
                 )
-            ]),
+            ], style={'fontSize': 15, 'margin-top': '145px'}),
             html.Iframe(
-                        id='scatter',
-                        srcDoc=scatter.to_html(),
-                        style={'border-width': '0', 'width': '160%', 'height': '400px'})
+                id='scatter',
+                srcDoc=scatter.to_html(),
+                style={'border-width': '0', 'width': '160%', 'height': '350px'})
         ])
     ])
 ])
@@ -250,10 +249,8 @@ def update_figure(selected):
                           reversescale=True,
                           colorscale="RdBu",marker={'line': {'color': 'rgb(180,180,180)','width': 0.5}},
                           colorbar={"thickness": 10, "len": 0.3, "x": 0.9, "y": 0.7,
-#                                     'title': {"text": 'mean of attribute', "side": "top"}})
-                                    'title': {"text": 'mean of attribute', "side": "bottom"},
-                                    'tickvals': [2, 10],
-                                    'ticktext': ['100', '100,00']})
+                                    'title': {"text": 'mean of attribute', "side": "top"}})
+
     return {"data": [trace],
             "layout": go.Layout(height=500, width=800, margin=dict(l=0, r=0, t=0, b=0), 
                                 geo={'showframe': False, 'showcoastlines': False,
