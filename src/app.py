@@ -45,7 +45,7 @@ app.layout = dbc.Container([
                 value=['Name', 'Nationality', 'Age', 'Value(€)', 'Overall'],
                 options=[{'label': col, 'value': col} for col in data.columns],
                 multi=True,
-                style={'font-size': '14px'}
+                style={'font-size': '16px'}
             ),
             html.Br(),
             dbc.Row([
@@ -66,8 +66,8 @@ app.layout = dbc.Container([
                     dcc.Dropdown(
                         id='order-widget',
                         value='True',
-                        options=[{'label': 'Descending', 'value': 'False'},
-                                 {'label': 'Ascending', 'value': 'True'}],
+                        options=[{'label': 'Descending', 'value': 'True'},
+                                 {'label': 'Ascending', 'value': 'False'}],
                         style={
                             'background-color': '#e6e6e6',
                             'font-size': '14px'
@@ -112,23 +112,31 @@ app.layout = dbc.Container([
                             id='table',
                             columns=[{"name": i, "id": i} for i in table.columns],
                             data=table.to_dict('records'),
-                            style_cell={'width': 120, 
-                                        'minWidth': '25%', 
-                                        'whiteSpace': 'normal', 
-                                        'overflow': 'hidden', 
+                            style_cell={'width': 120,
+                                        'minWidth': '25%',
+                                        'whiteSpace': 'normal',
+                                        'overflow': 'hidden',
                                         'font-size': '12px',
                                         'textAlign': 'right'},
                             style_header={'backgroundColor': 'lightslategrey',
                                           'color' : 'white',
                                           'fontWeight': 'bold',
                                           'textAlign': 'right',
-                                          'font-size': '12px'
+                                          'font-size': '13px'
                                          },
                             style_data_conditional=[{
                                         'if': {'row_index': 'odd'},
                                         'backgroundColor': 'navajowhite'}]
                         )])
-                    ])
+                    ]),
+                    html.Div([
+                        '**Overall and potential rating are calculated by FIFA19 development team.',
+                        'For more information on how they care calculated, please visit ',
+                        html.A('https://www.fifauteam.com/player-ratings-guide-fifa-19/',
+                            href='https://www.fifauteam.com/player-ratings-guide-fifa-19/',
+                            target="_blank")
+                    ], style={'margin-left': '50px'}
+                    )
                 ], label='Table', style={'width': '100vh', 'height': '65vh'}),
                 dbc.Tab(
                     dcc.Graph(id="map-graph"),
@@ -138,7 +146,8 @@ app.layout = dbc.Container([
             ], style={'fontSize': 15}),
             html.Iframe(
                 id='rank-histogram',
-                style={'border-width': '0', 'width': '200%', 'height': '200px', 'margin-left': '80px'},
+                style={'border-width': '0', 'width': '200%', 'height': '200px',
+                       'margin-left': '80px', 'margin-top': '10px'},
                 srcDoc=ranking_histo.to_html()
             )
         ], md=9),
@@ -148,7 +157,7 @@ app.layout = dbc.Container([
                     html.Iframe(
                         id='natn-chart',
                         srcDoc=chart_natn.to_html(),
-                        style={'border-width': '0', 'width': '150%', 'height': '350px'}
+                        style={'border-width': '0', 'width': '150%', 'height': '320px'}
                     ),
                     label='By Nationality'
                 ),
@@ -156,7 +165,7 @@ app.layout = dbc.Container([
                     html.Iframe(
                         id='club-chart',
                         srcDoc=chart_club.to_html(),
-                        style={'border-width': '0', 'width': '150%', 'height': '350px'}
+                        style={'border-width': '0', 'width': '150%', 'height': '320px'}
                     ),
                     label='By Club'
                 )
@@ -164,14 +173,28 @@ app.layout = dbc.Container([
             html.Iframe(
                 id='scatter',
                 srcDoc=scatter.to_html(),
-                style={'border-width': '0', 'width': '160%', 'height': '350px'})
+                style={'border-width': '0', 'width': '160%', 'height': '300px'}
+            ),
+            html.Div(
+                ['About Us:',
+                    html.Br(),
+                    'Yuanzhe Marco Ma, Sicheng Sun, Guanshu Tao, Yuan Xiong. We are students of the UBC MDS Program.', 
+                    html.Br(),
+                    html.Br(),
+                    'Data source: ',
+                    html.A('Kaggle', href='https://www.kaggle.com/karangadiya/fifa19', target="_blank"),
+                    html.Br(),
+                    'Source code: ',
+                    html.A('visit our GitHub', href='https://github.com/UBC-MDS/DSCI532_Group17', target="_blank")
+                ]
+            )
         ])
     ])
 ])
 
 
 # updates table from all 5 dropdowns
-# Inputs: 
+# Inputs:
 #     by : string, the column to rank by
 #     order : string, descending or ascending
 #     cols : list of string, the columns selected to present
@@ -258,7 +281,7 @@ def update_figure(selected):
                                     'title': {"text": 'mean of attribute', "side": "top"}})
 
     return {"data": [trace],
-            "layout": go.Layout(height=500, width=800, margin=dict(l=0, r=0, t=0, b=0), 
+            "layout": go.Layout(height=500, width=800, margin=dict(l=0, r=0, t=0, b=0),
                                 geo={'showframe': False, 'showcoastlines': False,
                                      'projection': {'type': "natural earth"}})}
 
