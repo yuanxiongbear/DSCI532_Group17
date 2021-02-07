@@ -18,9 +18,6 @@ Thank you for visiting the FIFA Star Board app project repository.
 
 ## About our project
 
-#### A Quick Demo
-![]('img/demo.gif')
-
 ### Motivation
 
 There are 3.5 billions soccer fans worldwide which makes soccer the most popular sport in the world. Soccer fans may be supporting a particular player, club or country, or simply be interested in the top players and teams in the world. They may want to keep track of their favourite team, player or check a star board to choose the match they like to watch. Among those soccer lovers, there also exist many sports bettors who also need latest new and information to support their decisions.
