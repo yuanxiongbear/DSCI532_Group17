@@ -309,4 +309,4 @@ def table_maintenance(selected_cols, rankby_col):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server()
